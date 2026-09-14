@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres-spring-test
+    environment:
+      POSTGRES_DB: app_db
+      POSTGRES_USER: spring_user
+      POSTGRES_PASSWORD: spring_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

@@ -15,3 +15,22 @@ buildNumber.properties
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+
+# Maven
+**/target/
+.mvn/
+
+# IDEs - IntelliJ / Eclipse / VSCode
+**/.idea/
+**/*.iml
+**/.classpath
+**/.project
+**/.settings/
+**/.vscode/
+
+# Sistema Operacional
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
