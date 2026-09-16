@@ -1,5 +1,6 @@
 package br.com.henrick.transactionpoc.repository;
 
+import br.com.henrick.transactionpoc.dto.PedidoResponseDTO;
 import br.com.henrick.transactionpoc.dto.PedidoResumoDTO;
 import br.com.henrick.transactionpoc.model.Pedido;
 import br.com.henrick.transactionpoc.model.StatusPedido;
@@ -19,4 +20,15 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
         WHERE p.status = :status
     """)
     List<PedidoResumoDTO> buscarResumoPorStatus(StatusPedido status);
+
+    // O Spring Data faz a projeção direta para o Record sem precisar de "new ..."!
+    Optional<PedidoResponseDTO> findProjectedById(Long id);
+
+    // Se preferir JPQL explícito para consultas mais complexas/joins:
+    @Query("""
+        SELECT p.id as id, p.cliente as cliente, p.valor as valor, p.status as status
+        FROM Pedido p
+        WHERE p.id = :id
+    """)
+    Optional<PedidoResponseDTO> buscarDTOExplicitamente(Long id);
 }
