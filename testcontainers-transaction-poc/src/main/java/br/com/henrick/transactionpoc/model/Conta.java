@@ -19,4 +19,10 @@ public class Conta {
     private Long id;
     private String titular;
     private BigDecimal saldo;
+
+    public Conta(String titular, BigDecimal saldo) {
+        this.titular = titular;
+        this.saldo = saldo;
+    }
+
 }
