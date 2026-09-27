@@ -1,22 +1,24 @@
 package br.com.henrick.transactionpoc.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "outbox_event")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class OutboxEvent {
 
     @Id
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "outbox_seq")
+    @SequenceGenerator(name = "outbox_seq", sequenceName = "seq_outbox_event", allocationSize = 50)
+    private Long id;
 
     private String aggregateType; // Ex: "PEDIDO"
 
@@ -24,7 +26,7 @@ public class OutboxEvent {
 
     private String eventType;     // Ex: "PEDIDO_CRIADO"
 
-    @Column(columnDefinition = "TEXT")
+    @JdbcTypeCode(SqlTypes.LONG32VARCHAR)
     private String payload;       // JSON do evento
 
     @Enumerated(EnumType.STRING)
@@ -33,16 +35,6 @@ public class OutboxEvent {
     private LocalDateTime createdAt;
 
     private LocalDateTime processedAt;
-
-    public OutboxEvent(String aggregateType, String aggregateId, String eventType, String payload) {
-        this.id = UUID.randomUUID();
-        this.aggregateType = aggregateType;
-        this.aggregateId = aggregateId;
-        this.eventType = eventType;
-        this.payload = payload;
-        this.status = OutboxStatus.PENDING;
-        this.createdAt = LocalDateTime.now();
-    }
 
     public enum OutboxStatus {
         PENDING, PROCESSED, FAILED

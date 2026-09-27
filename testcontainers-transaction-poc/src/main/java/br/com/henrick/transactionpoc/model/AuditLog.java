@@ -1,26 +1,38 @@
 package br.com.henrick.transactionpoc.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.Getter;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Setter
+@Table(name = "audit_log")
+@Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class AuditLog {
+
+    public AuditLog(String acao){
+        this.action = acao;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String action;
 
-    public AuditLog(String action) {
-        this.action = action;
-    }
+    @Column(name = "entity_id")
+    private String entityId;
+
+    @JdbcTypeCode(SqlTypes.LONG32VARCHAR)
+    private String details;
+
 }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -33,12 +34,14 @@ public class PedidoOutboxService {
         String payloadJson = objectMapper.writeValueAsString(pedidoSalvo);
 
         // 3. Persiste o evento na mesma transação ACID
-        OutboxEvent outboxEvent = new OutboxEvent(
-                "PEDIDO",
-                pedidoSalvo.getId().toString(),
-                "PEDIDO_CRIADO",
-                payloadJson
-        );
+        OutboxEvent outboxEvent = OutboxEvent.builder()
+                .aggregateType("PEDIDO")
+                .aggregateId(pedidoSalvo.getId().toString())
+                .eventType("PEDIDO_CRIADO")
+                .payload(payloadJson)
+                .status(OutboxEvent.OutboxStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .build();
         outboxRepository.save(outboxEvent);
 
         return pedidoSalvo;

@@ -4,7 +4,7 @@ O projeto possui suporte a testes de integração para **PostgreSQL** e **Oracle
 
 ### Como funciona
 
-* **PostgreSQL (Padrão):** Os testes convencionais utilizam as configurações padrão definidas em `src/test/resources/application.yaml`, apontando para o dialeto `org.hibernate.dialect.PostgreSQLDialect`.
+* **PostgreSQL (Padrão):** Os testes convencionais utilizam as configurações padrão definidas em `src/test/resources/application.yml`, apontando para o dialeto `org.hibernate.dialect.PostgreSQLDialect`.
 * **Oracle Database:** Os testes que validam a integração com Oracle rodam via **Testcontainers** e sobrescrevem o dialeto do Hibernate dinamicamente para `org.hibernate.dialect.OracleDialect` usando `@DynamicPropertySource` (ou o profile `@ActiveProfiles("oracle")`), garantindo a compatibilidade dos metadados e DDL do Oracle.
 
 ### Requisitos para execução

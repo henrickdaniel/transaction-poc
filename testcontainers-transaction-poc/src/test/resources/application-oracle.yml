@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    driver-class-name: oracle.jdbc.OracleDriver
+  flyway:
+    locations: classpath:db/migration-oracle
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.OracleDialect
+        ddl-auto: validate
+        # Garante que o Flyway inicialize antes do SessionFactory do Hibernate
+        flyway:
+          enabled: true
+      defer-datasource-initialization: false

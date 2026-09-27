@@ -1,0 +1,38 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/app_db
+    username: spring_user
+    password: spring_password
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      jdbc:
+        batch_size: 50             # Agrupa até 50 comandos em uma única chamada JDBC
+        order_inserts: true        # Ordena inserções para otimizar os batches
+        order_updates: true        # Ordena atualizações
+        batch_versioned_data: true # Permite batching para entidades com @Version
+      generate_statistics: true    # Mostra estatísticas de comandos JDBC no console (ótimo para testes)
+    defer-datasource-initialization: false
+    properties:
+      hibernate:
+        # Garante que o Flyway inicialize antes do SessionFactory do Hibernate
+        flyway:
+          enabled: true
+#  kafka:
+#    producer:
+#      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+#      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  kafka:
+    consumer:
+      auto-offset-reset: earliest

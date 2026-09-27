@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
+import org.springframework.kafka.listener.MessageListenerContainer;
+import org.springframework.kafka.test.utils.ContainerTestUtils;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.KafkaContainer;
@@ -60,10 +63,13 @@ class TransactionalOutboxIntegrationTest {
     @Autowired
     private OutboxEventRepository outboxRepository;
 
+    @Autowired
+    private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
+
     // Fila em memória para capturar eventos consumidos pelo Listener no teste
     private static final BlockingQueue<String> mensagensRecebidas = new LinkedBlockingQueue<>();
 
-    @KafkaListener(topics = "pedidos-v1", groupId = "test-group")
+    @KafkaListener(id = "test-listener", topics = "pedidos-v1", groupId = "test-group")
     public void escutarTopicoPedidos(String payload) {
         mensagensRecebidas.add(payload);
     }
@@ -73,6 +79,11 @@ class TransactionalOutboxIntegrationTest {
         outboxRepository.deleteAll();
         pedidoRepository.deleteAll();
         mensagensRecebidas.clear();
+
+        // Garante que o consumer já concluiu o rebalance e tem partição atribuída
+        // antes de publicarmos, evitando corrida com auto-offset-reset=latest.
+        MessageListenerContainer container = kafkaListenerEndpointRegistry.getListenerContainer("test-listener");
+        ContainerTestUtils.waitForAssignment(container, 1);
     }
 
     @Test
@@ -92,7 +103,7 @@ class TransactionalOutboxIntegrationTest {
         assertThat(outboxRepository.findAll().get(0).getStatus()).isEqualTo(OutboxEvent.OutboxStatus.PROCESSED);
 
         // 4. ASSERT 2: Valida se a mensagem REALMENTE trafegou pelo Kafka e foi recebida pelo Consumer
-        await().atMost(Duration.ofSeconds(200)).untilAsserted(() -> {
+        await().atMost(Duration.ofSeconds(10)).untilAsserted(() -> {
             String payloadConsumido = mensagensRecebidas.poll(1, TimeUnit.SECONDS);
             assertThat(payloadConsumido).isNotNull();
             assertThat(payloadConsumido).contains(pedido.getId().toString());

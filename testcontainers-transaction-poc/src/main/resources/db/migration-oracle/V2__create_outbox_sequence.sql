@@ -1,0 +1,3 @@
+CREATE SEQUENCE seq_outbox_event
+    START WITH 1
+    INCREMENT BY 50;

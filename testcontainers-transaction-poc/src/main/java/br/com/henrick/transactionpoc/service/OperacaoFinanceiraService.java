@@ -19,7 +19,12 @@ public class OperacaoFinanceiraService {
     )
     public void executarOperacaoComFalha(Long contaId) {
         // 1. Registra auditoria em uma TRANSAÇÃO NOVA (REQUIRES_NEW)
-        auditLogService.registrarLog("Tentativa de operacao financeira na conta: " + contaId);
+        try{
+            auditLogService.registrarLog("Tentativa de operacao financeira na conta: " + contaId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
 
         // 2. Simula uma falha de negócio/sistema na transação principal
         throw new RuntimeException("Falha simulada no processamento financeiro");
